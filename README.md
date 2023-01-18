@@ -8,6 +8,8 @@ There are still some kinks which need to be worked out. Thus the library has not
 
 ## Example
 
+![ezgif-2-66ea4664a0](https://user-images.githubusercontent.com/326605/213294042-a36913c8-8c94-4194-8e80-bc47ca32f99c.gif)
+
 ```java
 Video4j.init();
 try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
@@ -70,6 +72,7 @@ At the moment two options are available:
 
 // Run the face detection using dlib
 boolean useCNN = true;
+
 boolean loadEmbeddings = true;
 FaceVideoFrame faceframe = DLibFacedetection.scan(frame, 0.05f, useCNN, loadEmbeddings);
 ```
