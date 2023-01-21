@@ -4,9 +4,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import io.metaloom.video.facedetect.Face;
 import io.metaloom.video.facedetect.FaceVideoFrame;
-import io.metaloom.video.facedetect.FacedetectionMetrics;
+import io.metaloom.video.facedetect.FacedetectorMetrics;
 
-public class FacedetectionMetricsImpl implements FacedetectionMetrics {
+public class FacedetectionMetricsImpl implements FacedetectorMetrics {
 
 	public final AtomicLong FRAMES_WITH_FACE = new AtomicLong();
 

@@ -1,7 +1,7 @@
 package io.metaloom.video.facedetect;
 
 import java.awt.Point;
-import java.util.function.Function;
+import java.io.FileNotFoundException;
 import java.util.stream.Stream;
 
 import org.junit.FixMethodOrder;
@@ -9,24 +9,15 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.opencv.core.Scalar;
 
+import io.metaloom.video.facedetect.dlib.impl.DLibFacedetector;
+import io.metaloom.video.facedetect.opencv.CVFacedetector;
 import io.metaloom.video4j.Video;
-import io.metaloom.video4j.VideoFrame;
 import io.metaloom.video4j.Videos;
 import io.metaloom.video4j.opencv.CVUtils;
 import io.metaloom.video4j.utils.VideoUtils;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FacedetectPreviewUITest extends AbstractVideoTest {
-
-	public static final boolean USE_CNN_FACE_DETECT = true;
-
-	public static final boolean CPU_FACE_DETECT = false;
-
-	public static final boolean DONT_LOAD_EMBEDDINGS = false;
-
-	public static final boolean LOAD_EMBEDDINGS = true;
-
-	public static final boolean LOAD_LANDMARKS = true;
 
 	public static final String TEST_VIDEO = FEMALE_FACE_ROTATE;
 
@@ -40,48 +31,59 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 	private static final long FRAME_LIMIT = 55;
 
 	@Test
-	public void testDLIBCPU() {
-		runFaceDetect("dlib - HOG / resnet_v1 (CPU)", frame -> {
-			return DLibFacedetection.scan(frame, MIN_FACE_HEIGHT_THRESHOLD, CPU_FACE_DETECT, LOAD_EMBEDDINGS && LOAD_LANDMARKS);
-		});
+	public void testDLIBCPU() throws FileNotFoundException {
+		DLibFacedetector detector = DLibFacedetector.create();
+		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
+		detector.disableCNNDetector();
+		detector.enableLandmarks();
+		detector.enableLandmarks();
+
+		runFaceDetect("dlib - HOG / resnet_v1 (CPU)", detector);
+
 	}
 
 	@Test
-	public void testDLIBCNN() {
-		runFaceDetect("dlib - mmod_human_face (GPU)", frame -> {
-			return DLibFacedetection.scan(frame, MIN_FACE_HEIGHT_THRESHOLD, USE_CNN_FACE_DETECT, LOAD_EMBEDDINGS && LOAD_LANDMARKS);
-		});
+	public void testDLIBCNN() throws FileNotFoundException {
+		DLibFacedetector detector = DLibFacedetector.create();
+		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
+		detector.enableEmbeddings();
+		detector.enableLandmarks();
+		detector.enableCNNDetector();
+
+		runFaceDetect("dlib - mmod_human_face (GPU)", detector);
 	}
 
 	@Test
 	public void testOpenCVHaarcascade() {
-		CVFacedetection.loadHaarcascade();
-		CVFacedetection.loadKazemiLandmarkModel();
+		CVFacedetector detector = CVFacedetector.create();
+		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
+		detector.loadHaarcascadeClassifier();
+		detector.loadKazemiFacemarkModel();
+		detector.enableLandmarks();
 
-		runFaceDetect("OpenCV - Haarcascade / Kazemi", frame -> {
-			return CVFacedetection.scan(frame, MIN_FACE_HEIGHT_THRESHOLD, LOAD_LANDMARKS);
-		});
+		runFaceDetect("OpenCV - Haarcascade / Kazemi", detector);
+
 	}
 
 	@Test
 	public void testOpenCVLbpcascade() {
-		CVFacedetection.loadLbpcascade();
-		CVFacedetection.loadLBFLandmarkModel();
+		CVFacedetector detector = CVFacedetector.create();
+		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
+		detector.loadLbpcascadeClassifier();
+		detector.loadLBFLandmarkModel();
 
-		runFaceDetect("OpenCV - lbpcascade / LBFLandmarkModel", frame -> {
-			return CVFacedetection.scan(frame, MIN_FACE_HEIGHT_THRESHOLD, LOAD_LANDMARKS);
-		});
+		runFaceDetect("OpenCV - lbpcascade / LBFLandmarkModel", detector);
 	}
 
-//	@Test
-//	public void testZKeepOpen() throws IOException {
-//		System.in.read();
-//	}
+	// @Test
+	// public void testZKeepOpen() throws IOException {
+	// System.in.read();
+	// }
 
-	public static void runFaceDetect(String label, Function<VideoFrame, FaceVideoFrame> detector) {
+	public static void runFaceDetect(String label, Facedetector detector) {
+		FacedetectorMetrics metrics = FacedetectorMetrics.create();
 		try (Video video = Videos.open(TEST_VIDEO)) {
 			video.seekToFrameRatio(SEEK_TO);
-			FacedetectionMetrics metrics = FacedetectionMetrics.create();
 			Stream<FaceVideoFrame> frameStream = video.streamFrames()
 				.filter(frame -> {
 					return frame.number() % 5 == 0;
@@ -89,19 +91,18 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 				// .map(CVUtils::toGreyScale)
 				.map(frame -> {
 					CVUtils.boxFrame2(frame, 512);
-					//CVUtils.boxFrame2(frame, 1024);
+					// CVUtils.boxFrame2(frame, 1024);
 					return frame;
 				})
-				.map(detector)
+				.map(detector::detect)
 				// .filter(FaceVideoFrame::hasFace)
 				.map(metrics::track)
-				.map(Facedetection::markFaces)
-				.map(Facedetection::markLandmarks)
+				.map(detector::markFaces)
+				.map(detector::markLandmarks)
 				.map(frame -> {
-					CVUtils.drawText(frame, label, new org.opencv.core.Point(25, 25), 1.0f, new Scalar(255, 255, 255), 1);
-					return frame;
+					return CVUtils.drawText(frame, label, new org.opencv.core.Point(25, 25), 1.0f, new Scalar(255, 255, 255), 1);
 				})
-				.map(frame -> Facedetection.drawMetrics(frame, metrics, new Point(25, 45)))
+				.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)))
 				.limit(FRAME_LIMIT);
 			// .map(frame -> {
 			// return Facedetection.cropToFace(frame, 0);

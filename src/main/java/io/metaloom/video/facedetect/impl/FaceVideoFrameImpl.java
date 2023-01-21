@@ -11,11 +11,14 @@ import io.metaloom.video.facedetect.FaceVideoFrame;
 import io.metaloom.video4j.Video;
 import io.metaloom.video4j.VideoFrame;
 
+/**
+ * @see FaceVideoFrame
+ */
 public class FaceVideoFrameImpl implements FaceVideoFrame {
 
 	private VideoFrame delegate;
 
-	private final List<Face> faces = new ArrayList<>();
+	private List<? extends Face> faces = new ArrayList<>();
 
 	public FaceVideoFrameImpl(VideoFrame frame) {
 		this.delegate = frame;
@@ -62,20 +65,19 @@ public class FaceVideoFrameImpl implements FaceVideoFrame {
 	}
 
 	@Override
-	public Face addFace(int x, int y, int width, int height) {
-		Face face = new FaceImpl(x, y, width, height);
-		faces.add(face);
-		return face;
-	}
-
-	@Override
-	public List<Face> faces() {
+	public List<? extends Face> faces() {
 		return faces;
 	}
 
 	@Override
 	public boolean hasFace() {
 		return !faces.isEmpty();
+	}
+
+	@Override
+	public FaceVideoFrame setFaces(List<? extends Face> faces) {
+		this.faces = faces;
+		return this;
 	}
 
 }

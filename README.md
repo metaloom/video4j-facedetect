@@ -12,26 +12,30 @@ There are still some kinks which need to be worked out. Thus the library has not
 
 ```java
 Video4j.init();
+DLibFacedetector detector = DLibFacedetector.create();
+detector.setMinFaceHeightFactor(0.01f);
+detector.enableCNNDetector();
+detector.enableLandmarks();
+detector.enableLandmarks();
+
 try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-    FacedetectionMetrics metrics = FacedetectionMetrics.create();
-    Stream<FaceVideoFrame> frameStream = video.streamFrames()
-        .filter(frame -> {
-            return frame.number() % 5 == 0;
-        })
-        .map(frame -> {
-            CVUtils.boxFrame2(frame, 384);
-            return frame;
-        })
-        .map(frame -> DLibFacedetection.scan(frame, 0.01f, false, true))
-        .filter(FaceVideoFrame::hasFace)
-        .map(metrics::track)
-        .map(Facedetection::markFaces)
-        .map(Facedetection::markLandmarks)
-        .map(frame -> Facedetection.drawMetrics(frame, metrics, new Point(25, 45)))
-        .map(frame -> {
-            return Facedetection.cropToFace(frame, 0);
-        });
-    VideoUtils.showVideoFrameStream(frameStream);
+	FacedetectorMetrics metrics = FacedetectorMetrics.create();
+	Stream<FaceVideoFrame> frameStream = video.streamFrames()
+		.filter(frame -> {
+			return frame.number() % 5 == 0;
+		})
+		.map(frame -> {
+			CVUtils.boxFrame2(frame, 384);
+			return frame;
+		})
+		.map(detector::detect)
+		.filter(FaceVideoFrame::hasFace)
+		.map(metrics::track)
+		.map(detector::markFaces)
+		.map(detector::markLandmarks)
+		.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)))
+		.map(frame -> cropToFace(frame, 0));
+	VideoUtils.showVideoFrameStream(frameStream);
 }
 ```
 
@@ -72,7 +76,6 @@ At the moment two options are available:
 
 // Run the face detection using dlib
 boolean useCNN = true;
-
 boolean loadEmbeddings = true;
 FaceVideoFrame faceframe = DLibFacedetection.scan(frame, 0.05f, useCNN, loadEmbeddings);
 ```

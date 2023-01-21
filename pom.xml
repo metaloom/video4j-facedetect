@@ -5,18 +5,22 @@
 	<groupId>io.metaloom.video</groupId>
 	<artifactId>video4j-facedetect</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+
 	<parent>
 		<groupId>io.metaloom</groupId>
 		<artifactId>maven-parent</artifactId>
 		<version>1.0.0</version>
 	</parent>
+
 	<name>video4j-facedetect</name>
 	<url>https://github.com/metaloom/video4j-facedetect</url>
 	<description>Video4j extension which provides video face detection</description>
 	<inceptionYear>2023</inceptionYear>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
 	<dependencies>
 		<!-- Logging -->
 		<dependency>
@@ -34,7 +38,7 @@
 		<dependency>
 			<groupId>io.metaloom.utils</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<!-- Video -->
 		<dependency>
@@ -47,6 +51,7 @@
 			<artifactId>jdlib</artifactId>
 			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -54,6 +59,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>

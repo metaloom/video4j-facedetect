@@ -4,7 +4,16 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.List;
 
+import io.metaloom.video.facedetect.impl.FaceImpl;
+
+/**
+ * A {@link Face} contains information about a detected face. This can include area of detection, facial landmarks and retrieved embeddings of the face.
+ */
 public interface Face {
+
+	static Face create(int x, int y, int width, int height) {
+		return new FaceImpl(x, y, width, height);
+	}
 
 	/**
 	 * Return the upper-left start point of the rectangle which contains the found face.

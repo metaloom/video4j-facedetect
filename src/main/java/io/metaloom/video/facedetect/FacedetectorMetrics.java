@@ -2,9 +2,9 @@ package io.metaloom.video.facedetect;
 
 import io.metaloom.video.facedetect.impl.FacedetectionMetricsImpl;
 
-public interface FacedetectionMetrics {
+public interface FacedetectorMetrics {
 
-	static FacedetectionMetrics create() {
+	static FacedetectorMetrics create() {
 		return new FacedetectionMetricsImpl();
 	}
 
