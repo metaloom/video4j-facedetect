@@ -16,14 +16,14 @@ public final class FacedetectorUtils {
 	private FacedetectorUtils() {
 	}
 
-	public static List<Point> decropLandmarks(Face face, ArrayList<Point> facialLandmarks) {
+	public static List<Point> decropLandmarks(Face face, ArrayList<Point> facialLandmarks, int descaleFactor) {
 		return facialLandmarks.stream().map(point -> {
 			int x = face.start().x;
 			int y = face.start().y;
 			int xP = point.x;
 			int yP = point.y;
-			xP = xP / 2;
-			yP = yP / 2;
+			xP = xP / descaleFactor;
+			yP = yP / descaleFactor;
 			return new Point(x + xP, y + yP);
 		}).collect(Collectors.toList());
 		// List<Point> correctedPoints = new ArrayList<>();

@@ -134,11 +134,17 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 
 		if (isLoadEmbeddings()) {
 			for (Face face : faces) {
-				BufferedImage croppedImg = cropToFace(face, img);
-				int w = croppedImg.getWidth() * 2;
-				int h = croppedImg.getHeight() * 2;
-				BufferedImage enhancedCroppedImage = Scalr.resize(croppedImg, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, w, h,
-					Scalr.OP_ANTIALIAS);
+				//float marginPercent = 0.15f;
+				float marginPercent = 0;
+				BufferedImage croppedImg = cropToFace(face, img, marginPercent);
+				int scaleFactor = 1;
+				BufferedImage enhancedCroppedImage = croppedImg;
+				if (scaleFactor > 1) {
+					int w = croppedImg.getWidth() * scaleFactor;
+					int h = croppedImg.getHeight() * scaleFactor;
+					enhancedCroppedImage = Scalr.resize(croppedImg, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, w, h,
+						Scalr.OP_ANTIALIAS);
+				}
 
 				BufferedImage convertedImg = alignImageType(enhancedCroppedImage);
 				img.flush();
@@ -167,7 +173,7 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 					// if (faces.size() > i) {
 					// Face face = faces.get(i);
 					// if (face != null) {
-					face.setLandmarks(decropLandmarks(face, faceDesc.getFacialLandmarks()));
+					face.setLandmarks(decropLandmarks(face, faceDesc.getFacialLandmarks(), scaleFactor));
 					// face.setLandmarks(faceDesc.getFacialLandmarks());
 					face.setEmbeddings(faceDesc.getFaceEmbedding());
 					// }
