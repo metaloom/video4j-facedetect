@@ -5,29 +5,28 @@
 	<groupId>io.metaloom.video</groupId>
 	<artifactId>video4j-facedetect</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
 	<parent>
 		<groupId>io.metaloom</groupId>
 		<artifactId>maven-parent</artifactId>
-		<version>1.0.0</version>
+		<version>2.0.1</version>
 	</parent>
-
 	<name>video4j-facedetect</name>
 	<url>https://github.com/metaloom/video4j-facedetect</url>
 	<description>Video4j extension which provides video face detection</description>
 	<inceptionYear>2023</inceptionYear>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
 	<dependencies>
 		<!-- Logging -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-
 		<!-- Utils -->
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -37,20 +36,19 @@
 		<dependency>
 			<groupId>io.metaloom.utils</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<version>0.2.0</version>
 		</dependency>
 		<!-- Video -->
 		<dependency>
 			<groupId>io.metaloom.video</groupId>
 			<artifactId>video4j</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.metaloom.jdlib</groupId>
 			<artifactId>jdlib</artifactId>
-			<version>2.0.0-SNAPSHOT</version>
+			<version>2.0.0</version>
 		</dependency>
-
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -58,14 +56,13 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<release>11</release>
+					<release>17</release>
 				</configuration>
 			</plugin>
 		</plugins>
