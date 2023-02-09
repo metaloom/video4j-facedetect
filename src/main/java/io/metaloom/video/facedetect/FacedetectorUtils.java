@@ -26,9 +26,6 @@ public final class FacedetectorUtils {
 			yP = yP / descaleFactor;
 			return new Point(x + xP, y + yP);
 		}).collect(Collectors.toList());
-		// List<Point> correctedPoints = new ArrayList<>();
-		// for()
-		// return correctedPoints;
 	}
 
 	public static BufferedImage cropToFace(Face face, BufferedImage img) {
@@ -84,7 +81,6 @@ public final class FacedetectorUtils {
 	 * @return Cropped image
 	 */
 	public static BufferedImage cropToFace(Face face, BufferedImage img, float marginPercent) {
-		System.out.println();
 		Dimension dim = face.dimension();
 		int xExtra = (int) (marginPercent * dim.getWidth());
 		int yExtra = (int) (marginPercent * dim.getHeight());
