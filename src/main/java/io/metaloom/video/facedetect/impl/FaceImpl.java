@@ -62,6 +62,7 @@ public class FaceImpl implements Face {
 
 	@Override
 	public String toString() {
-		return "Face at " + x + ":" + y + " (" + width + " x " + height + ") landmarks: " + landmarks.size() + ", embeddings: " + embeddings.length;
+		return "Face at " + x + ":" + y + " (" + width + " x " + height + ") landmarks: " + (landmarks == null ? "null" : landmarks.size())
+			+ ", embeddings: " + (embeddings == null ? "null" : embeddings.length);
 	}
 }

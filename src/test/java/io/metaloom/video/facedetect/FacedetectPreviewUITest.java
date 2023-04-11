@@ -4,19 +4,16 @@ import java.awt.Point;
 import java.io.FileNotFoundException;
 import java.util.stream.Stream;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Test;
 import org.opencv.core.Scalar;
 
 import io.metaloom.video.facedetect.dlib.impl.DLibFacedetector;
 import io.metaloom.video.facedetect.opencv.CVFacedetector;
-import io.metaloom.video4j.Video;
+import io.metaloom.video4j.VideoFile;
 import io.metaloom.video4j.Videos;
 import io.metaloom.video4j.opencv.CVUtils;
 import io.metaloom.video4j.utils.VideoUtils;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FacedetectPreviewUITest extends AbstractVideoTest {
 
 	public static final String TEST_VIDEO = FEMALE_FACE_ROTATE;
@@ -82,7 +79,7 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 
 	public static void runFaceDetect(String label, Facedetector detector) {
 		FacedetectorMetrics metrics = FacedetectorMetrics.create();
-		try (Video video = Videos.open(TEST_VIDEO)) {
+		try (VideoFile video = Videos.open(TEST_VIDEO)) {
 			video.seekToFrameRatio(SEEK_TO);
 			Stream<FaceVideoFrame> frameStream = video.streamFrames()
 				.filter(frame -> {

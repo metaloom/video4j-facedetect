@@ -159,9 +159,9 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 				// No need to check for embeddings if we did not find any landmarks
 				// if (!faces.isEmpty()) {
 				List<FaceDescriptor> faceDescriptors = jdlib.getFaceEmbeddings(convertedImg);
-				if (!faceDescriptors.isEmpty()) {
-					ImageUtils.showImage(convertedImg);
-				}
+//				if (!faceDescriptors.isEmpty()) {
+//					ImageUtils.showImage(convertedImg);
+//				}
 				for (FaceDescriptor faceDesc : faceDescriptors) {
 					// Rectangle box = faceDesc.getFaceBox();
 					// int x = box.x;

@@ -73,13 +73,11 @@ public abstract class AbstractFacedetector implements Facedetector {
 	public FaceVideoFrame drawMetrics(FaceVideoFrame frame, FacedetectorMetrics metrics, java.awt.Point position) {
 
 		Scalar color = new Scalar(255, 255, 255);
-		// int font= Imgproc.FONT_HERSHEY_PLAIN;
 		double fontScale = 1.0f;
 		String text = "Metrics unavailable";
 		if (metrics != null) {
 			text = metrics.toString();
 		}
-		// Imgproc.putText(frame.mat(), "ABC", upperLeft, font, fontScale, color);
 		drawText(frame, text, new Point(position.x, position.y), fontScale, color, 1);
 		return frame;
 	}

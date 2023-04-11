@@ -1,12 +1,12 @@
 package io.metaloom.video.facedetect;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 import io.metaloom.video4j.Video4j;
 
 public class AbstractVideoTest {
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() {
 		Video4j.init();
 	}

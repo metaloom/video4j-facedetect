@@ -6,7 +6,7 @@ import java.awt.Point;
 import java.io.FileNotFoundException;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.metaloom.video.facedetect.dlib.impl.DLibFacedetector;
 import io.metaloom.video4j.Video;
@@ -23,7 +23,6 @@ public class ExampleTest {
 		DLibFacedetector detector = DLibFacedetector.create();
 		detector.setMinFaceHeightFactor(0.01f);
 		detector.enableCNNDetector();
-		detector.enableLandmarks();
 		detector.enableLandmarks();
 
 		try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
