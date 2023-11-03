@@ -35,6 +35,13 @@ public interface FaceVideoFrame extends VideoFrame {
 	boolean hasFace();
 
 	/**
+	 * Check whether at least one detected face provides face landmarks.
+	 * 
+	 * @return
+	 */
+	boolean hasFaceLandmarks();
+
+	/**
 	 * Set the faces for the frame.
 	 * 
 	 * @param faces

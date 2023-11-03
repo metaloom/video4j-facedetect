@@ -5,35 +5,48 @@ import static io.metaloom.video4j.opencv.CVUtils.crop;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.imgscalr.Scalr;
+
+import io.metaloom.video4j.VideoFrame;
+import io.metaloom.video4j.opencv.CVUtils;
 
 public final class FacedetectorUtils {
 
 	private FacedetectorUtils() {
 	}
 
-	public static List<Point> decropLandmarks(Face face, ArrayList<Point> facialLandmarks, int descaleFactor) {
-		return facialLandmarks.stream().map(point -> {
-			int x = face.start().x;
-			int y = face.start().y;
-			int xP = point.x;
-			int yP = point.y;
-			xP = xP / descaleFactor;
-			yP = yP / descaleFactor;
-			return new Point(x + xP, y + yP);
-		}).collect(Collectors.toList());
+	public static List<Point> decropLandmarks(Face face, List<Point> facialLandmarks, int descaleFactor) {
+		return facialLandmarks.stream()
+			.map(point -> {
+				int x = face.start().x;
+				int y = face.start().y;
+				int xP = point.x;
+				int yP = point.y;
+				xP = xP / descaleFactor;
+				yP = yP / descaleFactor;
+				return new Point(x + xP, y + yP);
+			})
+			.collect(Collectors.toList());
+
 	}
 
 	public static BufferedImage cropToFace(Face face, BufferedImage img) {
+		return cropToFace(face, img, 0);
+	}
+
+	public static BufferedImage cropToFace(Face face, BufferedImage img, int padding) {
 		Dimension dim = face.dimension();
-		int x = face.start().x;
-		int y = face.start().y;
-		int dimX = dim.width;
-		int dimY = dim.height;
+		int half = 0;
+		if (padding != 0) {
+			half = padding / 2;
+		}
+		int x = face.start().x - half;
+		int y = face.start().y - half;
+		int dimX = dim.width + half;
+		int dimY = dim.height + half;
 
 		// Clamp crop origin
 		if (x < 0) {
@@ -50,7 +63,8 @@ public final class FacedetectorUtils {
 		if (y + dimY > img.getHeight()) {
 			dimY = img.getHeight() - y;
 		}
-		return Scalr.crop(img, x, y, dimX, dimY);
+		BufferedImage cropped = Scalr.crop(img, x, y, dimX, dimY);
+		return CVUtils.toBufferedImageOfType(cropped, img.getType());
 	}
 
 	/**
@@ -61,11 +75,18 @@ public final class FacedetectorUtils {
 	 * @return Cropped frame or original frame if no cropping could be applied
 	 */
 	public static FaceVideoFrame cropToFace(FaceVideoFrame frame, int faceIndex) {
-		if (frame.faces().size() <= faceIndex) {
+		if (frame.faces()
+			.size() <= faceIndex) {
 			return frame;
 		}
-		Face face = frame.faces().get(faceIndex);
-		crop(frame, face.start(), face.dimension());
+		Face face = frame.faces()
+			.get(faceIndex);
+		crop(frame, face.start(), face.dimension(), 0);
+		return frame;
+	}
+
+	public static VideoFrame cropToFace(VideoFrame frame, Face face) {
+		crop(frame, face.start(frame.width(), frame.height()), face.dimension(frame.width(), frame.height()), 0);
 		return frame;
 	}
 

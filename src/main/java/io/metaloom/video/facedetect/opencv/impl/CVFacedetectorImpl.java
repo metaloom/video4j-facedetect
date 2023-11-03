@@ -1,5 +1,8 @@
 package io.metaloom.video.facedetect.opencv.impl;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,31 +84,26 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 		FACEMARK.loadModel(path);
 	}
 
-	/**
-	 * Scan the frame for faces and return a {@link FaceVideoFrame} which may contain information on found faces.
-	 * 
-	 * @param frame
-	 * @return
-	 */
-	public FaceVideoFrame detect(VideoFrame frame) {
+	@Override
+	public FaceVideoFrame detectFaces(VideoFrame frame) {
 		Mat matFrame = frame.mat();
 		// Construct a new face frame which contains the detection data
 		FaceVideoFrame faceFrame = FaceVideoFrame.from(frame);
-		faceFrame.setFaces(detect(matFrame));
+		faceFrame.setFaces(detectFaces(matFrame));
 		return faceFrame;
 	}
 
 	@Override
-	public List<? extends Face> detect(BufferedImage img) {
+	public List<? extends Face> detectFaces(BufferedImage img) {
 		Mat mat = MatProvider.mat();
 		CVUtils.bufferedImageToMat(img, mat);
-		List<? extends Face> faces = detect(mat);
+		List<? extends Face> faces = detectFaces(mat);
 		MatProvider.released(mat);
 		return faces;
 	}
 
 	@Override
-	public List<? extends Face> detect(Mat imageMat) {
+	public List<? extends Face> detectFaces(Mat imageMat) {
 
 		// Detecting faces
 		MatOfRect faceDetections = new MatOfRect();
@@ -128,33 +126,82 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 
 		// Store found face area
 		for (Rect rect : faceDetections.toArray()) {
-			Face face = Face.create(rect.x, rect.y, rect.width, rect.height);
+			Face face = Face.create(CVUtils.toRectangle(rect), imageMat.width(), imageMat.height());
 			faces.add(face);
 		}
 
-		// No need to search for landmarks if we did not find faces.
-		if (!faces.isEmpty() && isLandmarksEnabled()) {
-			List<MatOfPoint2f> landmarks = new ArrayList<>();
-			if (FACEMARK.fit(imageMat, faceDetections, landmarks)) {
-				for (int i = 0; i < landmarks.size(); i++) {
-					Face face = faces.get(i);
-					MatOfPoint2f landmark = landmarks.get(i);
-					// Transform point type of list
-					face.setLandmarks(landmark.toList().stream().map(CVUtils::toAWTPoint).collect(Collectors.toList()));
-				}
-			}
-		}
 		return faces;
 	}
 
 	@Override
-	public void enableEmbeddings() {
+	public FaceVideoFrame detectLandmarks(VideoFrame frame) {
+		Mat imageMat = frame.mat();
+
+		MatOfRect faceDetections = new MatOfRect();
+		List<MatOfPoint2f> landmarks = new ArrayList<>();
+		List<Face> faces = new ArrayList<>();
+		if (FACEMARK.fit(imageMat, faceDetections, landmarks)) {
+
+			for (Rect rect : faceDetections.toArray()) {
+				Face face = Face.create(CVUtils.toRectangle(rect), imageMat.width(), imageMat.height());
+				faces.add(face);
+			}
+			for (int i = 0; i < landmarks.size(); i++) {
+				MatOfPoint2f landmark = landmarks.get(i);
+				// Face face = Face.create();
+				// Transform point type of list
+				faces.get(i)
+					.setLandmarks(landmark.toList()
+						.stream()
+						.map(CVUtils::toAWTPoint)
+						.collect(Collectors.toList()));
+			}
+		}
+		return FaceVideoFrame.from(frame)
+			.setFaces(faces);
+	}
+
+	@Override
+	public FaceVideoFrame detectLandmarks(FaceVideoFrame frame) {
+		// No need to search for landmarks if we did not find faces.
+		if (!frame.hasFace()) {
+			return frame;
+		}
+		Mat imageMat = frame.mat();
+		List<? extends Face> faces = frame.faces();
+		Rect[] rects = faces.stream()
+			.map(this::toRect)
+			.toArray(Rect[]::new);
+
+		MatOfRect faceDetections = new MatOfRect(rects);
+		List<MatOfPoint2f> landmarks = new ArrayList<>();
+		if (FACEMARK.fit(imageMat, faceDetections, landmarks)) {
+			for (int i = 0; i < landmarks.size(); i++) {
+				Face face = faces.get(i);
+				MatOfPoint2f landmark = landmarks.get(i);
+				// Transform point type of list
+				face.setLandmarks(landmark.toList()
+					.stream()
+					.map(CVUtils::toAWTPoint)
+					.collect(Collectors.toList()));
+			}
+		}
+		return frame;
+	}
+
+	@Override
+	public FaceVideoFrame detectEmbeddings(VideoFrame frame) {
 		throw new UnsupportedOperationException("The OpenCV implementation currently does not support embeddings");
 	}
 
 	@Override
-	public boolean isLoadEmbeddings() {
-		return false;
+	public FaceVideoFrame detectEmbeddings(FaceVideoFrame frame) {
+		throw new UnsupportedOperationException("The OpenCV implementation currently does not support embeddings");
 	}
 
+	private Rect toRect(Face face) {
+		Point start = face.start();
+		Dimension dim = face.dimension();
+		return new Rect(start.x, start.y, dim.width, dim.height);
+	}
 }

@@ -3,6 +3,8 @@ package io.metaloom.video.facedetect;
 import static io.metaloom.video4j.opencv.CVUtils.drawText;
 import static io.metaloom.video4j.opencv.CVUtils.toCVPoint;
 
+import java.awt.Dimension;
+
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -13,10 +15,6 @@ public abstract class AbstractFacedetector implements Facedetector {
 
 	protected float minFaceHeightFactor = DEFAULT_MIN_FACE_HEIGHT_FACTOR;
 
-	private boolean loadEmbeddings = true;
-
-	private boolean loadLandmarks = true;
-
 	@Override
 	public float getMinFaceHeightFactor() {
 		return minFaceHeightFactor;
@@ -26,38 +24,6 @@ public abstract class AbstractFacedetector implements Facedetector {
 	public void setMinFaceHeightFactor(float factor) {
 		this.minFaceHeightFactor = factor;
 	}
-
-	@Override
-	public void enableEmbeddings() {
-		loadEmbeddings = true;
-	}
-
-	@Override
-	public void disableEmbeddings() {
-		loadEmbeddings = false;
-	}
-
-	@Override
-	public boolean isLoadEmbeddings() {
-		return loadEmbeddings;
-	}
-
-	@Override
-	public boolean isLandmarksEnabled() {
-		return loadLandmarks;
-	}
-
-	@Override
-	public void enableLandmarks() {
-		loadLandmarks = true;
-
-	}
-
-	@Override
-	public void disableLandmarks() {
-		loadLandmarks = false;
-	}
-
 
 	@Override
 	public FaceVideoFrame markLandmarks(FaceVideoFrame frame) {
@@ -71,7 +37,6 @@ public abstract class AbstractFacedetector implements Facedetector {
 
 	@Override
 	public FaceVideoFrame drawMetrics(FaceVideoFrame frame, FacedetectorMetrics metrics, java.awt.Point position) {
-
 		Scalar color = new Scalar(255, 255, 255);
 		double fontScale = 1.0f;
 		String text = "Metrics unavailable";
@@ -85,8 +50,12 @@ public abstract class AbstractFacedetector implements Facedetector {
 	@Override
 	public FaceVideoFrame markFaces(FaceVideoFrame frame) {
 		for (Face face : frame.faces()) {
-			Point cvStart = toCVPoint(face.start());
-			Point cvEnd = toCVPoint(face.end());
+			java.awt.Point start = face.start(frame.width(), frame.height());
+			Dimension dim = face.dimension(frame.width(), frame.height());
+			Point cvStart = toCVPoint(start);
+
+			java.awt.Point end = new java.awt.Point(start.x + dim.width, start.y + dim.height);
+			Point cvEnd = toCVPoint(end);
 			Imgproc.rectangle(frame.mat(), cvStart, cvEnd, new Scalar(0, 255, 0));
 		}
 		return frame;

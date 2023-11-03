@@ -2,6 +2,7 @@ package io.metaloom.video.facedetect;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.List;
 
 import io.metaloom.video.facedetect.impl.FaceImpl;
@@ -11,8 +12,8 @@ import io.metaloom.video.facedetect.impl.FaceImpl;
  */
 public interface Face {
 
-	static Face create(int x, int y, int width, int height) {
-		return new FaceImpl(x, y, width, height);
+	static Face create(Rectangle box, int imageWidth, int imageHeight) {
+		return new FaceImpl(box, imageWidth, imageHeight);
 	}
 
 	/**
@@ -23,11 +24,13 @@ public interface Face {
 	Point start();
 
 	/**
-	 * Return the lower-right end point of the rectangle which contains the found face.
+	 * Return the upper-left start point relative to the provided image format.
 	 * 
+	 * @param imageWidth
+	 * @param imageHeight
 	 * @return
 	 */
-	Point end();
+	Point start(int imageWidth, int imageHeight);
 
 	/**
 	 * Return the pixel size of the detected face area.
@@ -35,6 +38,17 @@ public interface Face {
 	 * @return
 	 */
 	Dimension dimension();
+
+	/**
+	 * Return dimension relative to the given image format.
+	 * 
+	 * @param imageWidth
+	 * @param imageHeight
+	 * @return
+	 */
+	Dimension dimension(int imageWidth, int imageHeight);
+
+	Rectangle box();
 
 	/**
 	 * Set the landmarks for the face.
@@ -63,5 +77,14 @@ public interface Face {
 	 * @return
 	 */
 	float[] getEmbeddings();
+
+	/**
+	 * Check whether an embedding has been stored with the face.
+	 * 
+	 * @return
+	 */
+	boolean hasLandmarks();
+
+	boolean hasEmbedding();
 
 }

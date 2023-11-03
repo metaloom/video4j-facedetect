@@ -9,7 +9,7 @@ This project contains APIs that provide access to different [Face detection](htt
 <dependency>
 	<groupId>io.metaloom.video</groupId>
 	<artifactId>video4j-facedetect</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>${project.version}</version>
 </dependency>
 ```
 
@@ -57,41 +57,7 @@ try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.
 The OpenCV classifier based face detection needs to be initialized before usage.
 
 ```java
-
-// Initialize video4j + detector
-Video4j.init();
-CVFacedetector detector = CVFacedetector.create();
-detector.setMinFaceHeightFactor(0.01f);
-
-// Face detection classifiers
-detector.loadLbpcascadeClassifier();
-detector.loadHaarcascadeClassifier();
-
-// Landmark detection models
-detector.loadLBFLandmarkModel();
-detector.loadKazemiFacemarkModel();
-
-// Open video and load frames
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-	FacedetectorMetrics metrics = FacedetectorMetrics.create();
-	Stream<FaceVideoFrame> frameStream = video.streamFrames()
-			.filter(frame -> {
-				return frame.number() % 5 == 0;
-			})
-			.map(frame -> {
-				CVUtils.boxFrame2(frame, 384);
-				return frame;
-			})
-			.map(detector::detectFaces)
-			.map(detector::detectLandmarks)
-			.filter(FaceVideoFrame::hasFace)
-			.map(metrics::track)
-			.map(detector::markFaces)
-			.map(detector::markLandmarks)
-			.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)))
-			.map(frame -> FacedetectorUtils.cropToFace(frame, 0));
-	VideoUtils.showVideoFrameStream(frameStream);
-}
+%{snippet|id=opencv|file=src/test/java/io/metaloom/video/facedetect/BasicUsageExampleTest.java}
 ```
 
 
@@ -104,54 +70,14 @@ At the moment two options are available:
 * CNN face detector which can utilize GPU
 
 ```java
-
-// Initialize video4j + detector
-Video4j.init();
-DLibFacedetector detector = DLibFacedetector.create();
-detector.enableCNNDetector();
-detector.setMinFaceHeightFactor(0.05f);
-
-// Open video and load frames
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-	FacedetectorMetrics metrics = FacedetectorMetrics.create();
-	Stream<FaceVideoFrame> frameStream = video.streamFrames()
-			.filter(frame -> {
-				return frame.number() % 5 == 0;
-			})
-			.map(frame -> {
-				CVUtils.boxFrame2(frame, 384);
-				return frame;
-			})
-			// Run the face detection using dlib
-			.map(detector::detectFaces)
-			.map(detector::detectLandmarks)
-			//.map(detector::detectEmbeddings)
-			.filter(FaceVideoFrame::hasFace)
-			.map(metrics::track)
-			.map(detector::markFaces)
-			.map(detector::markLandmarks)
-			.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)));
-			//.map(frame -> FacedetectorUtils.cropToFace(frame, 0));
-	VideoUtils.showVideoFrameStream(frameStream);
-
-}
+%{snippet|id=dlib|file=src/test/java/io/metaloom/video/facedetect/BasicUsageExampleTest.java}
 ```
 
 ## Face Extraction data
 
 
 ```java
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-	FaceVideoFrame faceFrame = detector.detectFaces(video.frame());
-	// Check if the frame contains a detected face
-	if (faceFrame.hasFace()) {
-		List<? extends Face> faces = faceFrame.faces();// Access the faces
-		Face face = faces.get(0);
-		Point start = face.start(); // Upper left point of the face
-		Dimension dim = face.dimension(); // Dimension of the face area in pixel
-		List<Point> landmarks = face.getLandmarks(); // Load the detected landmarks
-		float[] vector = face.getEmbeddings(); // Access the embeddings vector data
-	}
+%{snippet|id=dlib-extract|file=src/test/java/io/metaloom/video/facedetect/BasicUsageExampleTest.java}
 ```
 
 ## Model sources

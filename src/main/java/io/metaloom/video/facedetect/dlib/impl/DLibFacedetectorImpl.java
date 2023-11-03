@@ -3,6 +3,7 @@ package io.metaloom.video.facedetect.dlib.impl;
 import static io.metaloom.video.facedetect.FacedetectorUtils.cropToFace;
 import static io.metaloom.video.facedetect.FacedetectorUtils.decropLandmarks;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
@@ -15,10 +16,10 @@ import org.imgscalr.Scalr;
 
 import io.metaloom.jdlib.Jdlib;
 import io.metaloom.jdlib.util.FaceDescriptor;
-import io.metaloom.jdlib.util.ImageUtils;
 import io.metaloom.video.facedetect.AbstractFacedetector;
 import io.metaloom.video.facedetect.Face;
 import io.metaloom.video.facedetect.FaceVideoFrame;
+import io.metaloom.video.facedetect.FacedetectorUtils;
 import io.metaloom.video4j.VideoFrame;
 
 public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFacedetector {
@@ -79,116 +80,150 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 	}
 
 	@Override
-	public FaceVideoFrame detect(VideoFrame frame) {
+	public FaceVideoFrame detectFaces(VideoFrame frame) {
 		FaceVideoFrame faceFrame = FaceVideoFrame.from(frame);
 		BufferedImage img = frame.toImage();
-		faceFrame.setFaces(detect(img));
+		faceFrame.setFaces(detectFaces(img));
 		return faceFrame;
 	}
 
 	@Override
-	public List<? extends Face> detect(BufferedImage img) {
-		int absoluteFaceHeightThreshold = 0;
+	public List<? extends Face> detectFaces(BufferedImage img) {
+		int absoluteFaceHeightThreshold = calculateHeightThreshold(img);
+
+		// Detect faces
+		List<Face> faces = new ArrayList<>();
+		List<Rectangle> faceRects = null;
+		if (useCNN) {
+			faceRects = jdlib.cnnDetectFace(img);
+		} else {
+			faceRects = jdlib.detectFace(img);
+		}
+		for (Rectangle rect : faceRects) {
+			int height = rect.height;
+
+			// Check if the found face is too small and does not meet the face height threshold.
+			if (height > absoluteFaceHeightThreshold) {
+				Face face = Face.create(rect, img.getWidth(), img.getHeight());
+				faces.add(face);
+			}
+		}
+
+		return faces;
+	}
+
+	private int calculateHeightThreshold(BufferedImage img) {
 		if (minFaceHeightFactor != 0) {
 			// Compute minimum face size
 			int height = img.getHeight();
 			if (Math.round(height * minFaceHeightFactor) > 0) {
-				absoluteFaceHeightThreshold = Math.round(height * minFaceHeightFactor);
+				return Math.round(height * minFaceHeightFactor);
 			}
 		}
+		return 0;
+	}
 
-		// Detect faces
+	@Override
+	public FaceVideoFrame detectEmbeddings(VideoFrame frame) {
+		BufferedImage img = frame.toImage();
 		List<Face> faces = new ArrayList<>();
-		if (useCNN) {
-			List<Rectangle> faceRects = jdlib.cnnDetectFace(img);
-			for (Rectangle rect : faceRects) {
-				int x = rect.x;
-				int y = rect.y;
-				int width = rect.width;
-				int height = rect.height;
+		for (FaceDescriptor faceDesc : jdlib.getFaceEmbeddings(img)) {
+			Face face = Face.create(faceDesc.getFaceBox(),img.getWidth(), img.getHeight());
+			face.setEmbeddings(faceDesc.getFaceEmbedding());
+			face.setLandmarks(faceDesc.getFacialLandmarks());
+			faces.add(face);
+		}
+		return FaceVideoFrame.from(frame)
+			.setFaces(faces);
+	}
 
-				// Check if the found face is too small and does not meet the face height threshold.
-				if (height > absoluteFaceHeightThreshold) {
-					Face face = Face.create(x, y, width, height);
-					faces.add(face);
-				}
+	@Override
+	public FaceVideoFrame detectEmbeddings(FaceVideoFrame frame) {
+		if (!frame.hasFace()) {
+			return frame;
+		}
+		BufferedImage img = frame.toImage();
+
+		List<? extends Face> faces = frame.faces();
+		for (Face face : faces) {
+			// float marginPercent = 0.15f;
+			float marginPercent = 0;
+			BufferedImage croppedImg = cropToFace(face, img, marginPercent);
+			int scaleFactor = 1;
+			BufferedImage enhancedCroppedImage = croppedImg;
+			if (scaleFactor > 1) {
+				int w = croppedImg.getWidth() * scaleFactor;
+				int h = croppedImg.getHeight() * scaleFactor;
+				enhancedCroppedImage = Scalr.resize(croppedImg, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, w, h, Scalr.OP_ANTIALIAS);
 			}
-		} else {
-			List<FaceDescriptor> faceDescriptors = jdlib.getFaceLandmarks(img);
+
+			BufferedImage convertedImg = alignImageType(enhancedCroppedImage);
+			img.flush();
+			croppedImg.flush();
+			enhancedCroppedImage.flush();
+
+			List<FaceDescriptor> faceDescriptors = jdlib.getFaceEmbeddings(convertedImg);
 			for (FaceDescriptor faceDesc : faceDescriptors) {
-				int x = faceDesc.getFaceBox().x;
-				int y = faceDesc.getFaceBox().y;
-				int width = faceDesc.getFaceBox().width;
-				int height = faceDesc.getFaceBox().height;
-
-				// Check if the found face is too small and does not meet the face height threshold.
-				if (height < absoluteFaceHeightThreshold) {
-					faces.add(null);
-				} else {
-					Face face = Face.create(x, y, width, height);
-					face.setLandmarks(faceDesc.getFacialLandmarks());
-					faces.add(face);
-				}
+				face.setLandmarks(decropLandmarks(face, faceDesc.getFacialLandmarks(), scaleFactor));
+				face.setEmbeddings(faceDesc.getFaceEmbedding());
 			}
 		}
+		return frame;
+	}
 
-		if (isLoadEmbeddings()) {
-			for (Face face : faces) {
-				//float marginPercent = 0.15f;
-				float marginPercent = 0;
-				BufferedImage croppedImg = cropToFace(face, img, marginPercent);
-				int scaleFactor = 1;
-				BufferedImage enhancedCroppedImage = croppedImg;
-				if (scaleFactor > 1) {
-					int w = croppedImg.getWidth() * scaleFactor;
-					int h = croppedImg.getHeight() * scaleFactor;
-					enhancedCroppedImage = Scalr.resize(croppedImg, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, w, h,
-						Scalr.OP_ANTIALIAS);
-				}
-
-				BufferedImage convertedImg = alignImageType(enhancedCroppedImage);
-				img.flush();
-				croppedImg.flush();
-				enhancedCroppedImage.flush();
-				// try {
-				// System.in.read();
-				// } catch (IOException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				// No need to check for embeddings if we did not find any landmarks
-				// if (!faces.isEmpty()) {
-				List<FaceDescriptor> faceDescriptors = jdlib.getFaceEmbeddings(convertedImg);
-//				if (!faceDescriptors.isEmpty()) {
-//					ImageUtils.showImage(convertedImg);
-//				}
-				for (FaceDescriptor faceDesc : faceDescriptors) {
-					// Rectangle box = faceDesc.getFaceBox();
-					// int x = box.x;
-					// int y = box.y;
-					// int width = box.width;
-					// int height = box.height;
-					// Face face = faceFrame.addFace(x, y, width, height);
-					// faces.add(face);
-					// if (faces.size() > i) {
-					// Face face = faces.get(i);
-					// if (face != null) {
-					face.setLandmarks(decropLandmarks(face, faceDesc.getFacialLandmarks(), scaleFactor));
-					// face.setLandmarks(faceDesc.getFacialLandmarks());
-					face.setEmbeddings(faceDesc.getFaceEmbedding());
-					// }
-					// }
-				}
-				// }
-			}
-
+	@Override
+	public FaceVideoFrame detectLandmarks(VideoFrame frame) {
+		BufferedImage img = frame.toImage();
+		List<Face> faces = new ArrayList<>();
+		List<FaceDescriptor> faceDescriptors = jdlib.getFaceLandmarks(img);
+		for (FaceDescriptor faceDesc : faceDescriptors) {
+			Face face = Face.create(faceDesc.getFaceBox(), img.getWidth(), img.getHeight());
+			face.setLandmarks(faceDesc.getFacialLandmarks());
+			faces.add(face);
 		}
-		return faces;
+		return FaceVideoFrame.from(frame)
+			.setFaces(faces);
+	}
+
+	@Override
+	public FaceVideoFrame detectLandmarks(FaceVideoFrame frame) {
+		if (!frame.hasFace()) {
+			return frame;
+		}
+
+		BufferedImage img = frame.toImage();
+		List<? extends Face> faces = frame.faces();
+		for (Face face : faces) {
+			BufferedImage faceImg = FacedetectorUtils.cropToFace(face, img);
+			List<FaceDescriptor> faceDescriptors = fixOffset(face, jdlib.getFaceLandmarks(faceImg));
+			for (FaceDescriptor faceDesc : faceDescriptors) {
+				face.setLandmarks(faceDesc.getFacialLandmarks());
+			}
+		}
+		return frame;
+	}
+
+	private List<FaceDescriptor> fixOffset(Face face, List<FaceDescriptor> faceLandmarks) {
+		List<FaceDescriptor> faceDescriptors = new ArrayList<>();
+		for (FaceDescriptor mark : faceLandmarks) {
+			List<Point> points = mark.getFacialLandmarks()
+				.stream()
+				.map(p -> {
+					p.x += face.start().x;
+					p.y += face.start().y;
+					return p;
+				})
+				.toList();
+
+			faceDescriptors.add(new FaceDescriptor(face.box(), points));
+		}
+		return faceDescriptors;
 	}
 
 	private static BufferedImage alignImageType(BufferedImage img) {
 		BufferedImage convertedImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-		convertedImg.getGraphics().drawImage(img, 0, 0, null);
+		convertedImg.getGraphics()
+			.drawImage(img, 0, 0, null);
 		return convertedImg;
 	}
 

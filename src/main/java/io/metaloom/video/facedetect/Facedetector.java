@@ -14,8 +14,7 @@ public interface Facedetector {
 	 * @param frame
 	 * @return
 	 */
-
-	FaceVideoFrame detect(VideoFrame frame);
+	FaceVideoFrame detectFaces(VideoFrame frame);
 
 	/**
 	 * Detect faces in the provided image.
@@ -23,7 +22,40 @@ public interface Facedetector {
 	 * @param img
 	 * @return
 	 */
-	List<? extends Face> detect(BufferedImage img);
+	List<? extends Face> detectFaces(BufferedImage img);
+
+	/**
+	 * Try to detect the landmarks for the faces in the provided frame. Note that {@link #detectFaces(VideoFrame, boolean)} must be run first to locate the
+	 * faces.
+	 * 
+	 * @param frame
+	 * @return
+	 */
+	FaceVideoFrame detectLandmarks(FaceVideoFrame frame);
+
+	/**
+	 * Try to detect faces via the landmark detection. Note that this detection may not be as reliable as {@link #detectFaces}.
+	 * 
+	 * @param frame
+	 * @return
+	 */
+	FaceVideoFrame detectLandmarks(VideoFrame frame);
+
+	/**
+	 * Detect embeddings for the found faces.
+	 * 
+	 * @param frame
+	 * @return
+	 */
+	FaceVideoFrame detectEmbeddings(FaceVideoFrame frame);
+
+	/**
+	 * Detect faces via the embedding detection.
+	 * 
+	 * @param frame
+	 * @return
+	 */
+	FaceVideoFrame detectEmbeddings(VideoFrame frame);
 
 	/**
 	 * Return the factor which is used to limit the face detection.
@@ -38,18 +70,6 @@ public interface Facedetector {
 	 * @param factor
 	 */
 	void setMinFaceHeightFactor(float factor);
-
-	void disableEmbeddings();
-
-	void enableEmbeddings();
-
-	boolean isLoadEmbeddings();
-
-	void enableLandmarks();
-
-	boolean isLandmarksEnabled();
-
-	void disableLandmarks();
 
 	/**
 	 * Draw metric information on the given frame.

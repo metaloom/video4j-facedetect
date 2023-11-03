@@ -25,6 +25,16 @@ public class FaceVideoFrameImpl implements FaceVideoFrame {
 	}
 
 	@Override
+	public int height() {
+		return delegate.height();
+	}
+
+	@Override
+	public int width() {
+		return delegate.width();
+	}
+
+	@Override
 	public long number() {
 		return delegate.number();
 	}
@@ -72,6 +82,19 @@ public class FaceVideoFrameImpl implements FaceVideoFrame {
 	@Override
 	public boolean hasFace() {
 		return !faces.isEmpty();
+	}
+
+	@Override
+	public boolean hasFaceLandmarks() {
+		if (!hasFace()) {
+			return false;
+		}
+		for (Face face : faces()) {
+			if (face.hasLandmarks()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ public interface CVFacedetector extends Facedetector {
 		return new CVFacedetectorImpl();
 	}
 
-	List<? extends Face> detect(Mat imageMat);
+	List<? extends Face> detectFaces(Mat imageMat);
 
 	void loadLbpcascadeClassifier();
 

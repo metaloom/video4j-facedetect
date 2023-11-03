@@ -32,19 +32,14 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 		DLibFacedetector detector = DLibFacedetector.create();
 		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
 		detector.disableCNNDetector();
-		detector.enableLandmarks();
-		detector.enableLandmarks();
 
 		runFaceDetect("dlib - HOG / resnet_v1 (CPU)", detector);
-
 	}
 
 	@Test
 	public void testDLIBCNN() throws FileNotFoundException {
 		DLibFacedetector detector = DLibFacedetector.create();
 		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
-		detector.enableEmbeddings();
-		detector.enableLandmarks();
 		detector.enableCNNDetector();
 
 		runFaceDetect("dlib - mmod_human_face (GPU)", detector);
@@ -56,10 +51,8 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
 		detector.loadHaarcascadeClassifier();
 		detector.loadKazemiFacemarkModel();
-		detector.enableLandmarks();
 
 		runFaceDetect("OpenCV - Haarcascade / Kazemi", detector);
-
 	}
 
 	@Test
@@ -71,11 +64,6 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 
 		runFaceDetect("OpenCV - lbpcascade / LBFLandmarkModel", detector);
 	}
-
-	// @Test
-	// public void testZKeepOpen() throws IOException {
-	// System.in.read();
-	// }
 
 	public static void runFaceDetect(String label, Facedetector detector) {
 		FacedetectorMetrics metrics = FacedetectorMetrics.create();
@@ -91,7 +79,8 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 					// CVUtils.boxFrame2(frame, 1024);
 					return frame;
 				})
-				.map(detector::detect)
+				.map(detector::detectFaces)
+				.map(detector::detectLandmarks)
 				// .filter(FaceVideoFrame::hasFace)
 				.map(metrics::track)
 				.map(detector::markFaces)
