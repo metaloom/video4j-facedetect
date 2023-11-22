@@ -150,7 +150,7 @@ try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.
 		Point start = face.start(); // Upper left point of the face
 		Dimension dim = face.dimension(); // Dimension of the face area in pixel
 		List<Point> landmarks = face.getLandmarks(); // Load the detected landmarks
-		float[] vector = face.getEmbeddings(); // Access the embeddings vector data
+		float[] vector = face.getEmbedding(); // Access the embeddings vector data
 	}
 ```
 

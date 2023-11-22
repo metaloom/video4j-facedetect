@@ -6,10 +6,10 @@ package org.opencv.face;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Scalar;
-import org.opencv.face.Facemark;
 import org.opencv.utils.Converters;
 
 // C++: class Face

@@ -18,8 +18,8 @@ import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.Objdetect;
 
 import io.metaloom.video.facedetect.AbstractFacedetector;
-import io.metaloom.video.facedetect.Face;
 import io.metaloom.video.facedetect.FaceVideoFrame;
+import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video.facedetect.opencv.CVFacedetector;
 import io.metaloom.video4j.VideoFrame;
 import io.metaloom.video4j.impl.MatProvider;
@@ -126,7 +126,7 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 
 		// Store found face area
 		for (Rect rect : faceDetections.toArray()) {
-			Face face = Face.create(CVUtils.toRectangle(rect), imageMat.width(), imageMat.height());
+			Face face = Face.create(CVUtils.toRectangle(rect));
 			faces.add(face);
 		}
 
@@ -143,7 +143,7 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 		if (FACEMARK.fit(imageMat, faceDetections, landmarks)) {
 
 			for (Rect rect : faceDetections.toArray()) {
-				Face face = Face.create(CVUtils.toRectangle(rect), imageMat.width(), imageMat.height());
+				Face face = Face.create(CVUtils.toRectangle(rect));
 				faces.add(face);
 			}
 			for (int i = 0; i < landmarks.size(); i++) {

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.imgscalr.Scalr;
 
+import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video4j.VideoFrame;
 import io.metaloom.video4j.opencv.CVUtils;
 
@@ -86,7 +87,7 @@ public final class FacedetectorUtils {
 	}
 
 	public static VideoFrame cropToFace(VideoFrame frame, Face face) {
-		crop(frame, face.start(frame.width(), frame.height()), face.dimension(frame.width(), frame.height()), 0);
+		crop(frame, face.start(), face.dimension(), 0);
 		return frame;
 	}
 

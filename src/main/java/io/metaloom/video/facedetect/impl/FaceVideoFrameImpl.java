@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.opencv.core.Mat;
 
-import io.metaloom.video.facedetect.Face;
 import io.metaloom.video.facedetect.FaceVideoFrame;
+import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video4j.Video;
 import io.metaloom.video4j.VideoFrame;
 

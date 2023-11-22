@@ -2,6 +2,7 @@ package io.metaloom.video.facedetect;
 
 import java.util.List;
 
+import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video.facedetect.impl.FaceVideoFrameImpl;
 import io.metaloom.video4j.VideoFrame;
 

@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video4j.VideoFrame;
 
 public interface Facedetector {

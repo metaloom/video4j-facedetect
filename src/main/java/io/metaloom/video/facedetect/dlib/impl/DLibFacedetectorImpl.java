@@ -17,9 +17,10 @@ import org.imgscalr.Scalr;
 import io.metaloom.jdlib.Jdlib;
 import io.metaloom.jdlib.util.FaceDescriptor;
 import io.metaloom.video.facedetect.AbstractFacedetector;
-import io.metaloom.video.facedetect.Face;
 import io.metaloom.video.facedetect.FaceVideoFrame;
 import io.metaloom.video.facedetect.FacedetectorUtils;
+import io.metaloom.video.facedetect.face.Face;
+import io.metaloom.video.facedetect.face.FaceBox;
 import io.metaloom.video4j.VideoFrame;
 
 public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFacedetector {
@@ -104,7 +105,7 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 
 			// Check if the found face is too small and does not meet the face height threshold.
 			if (height > absoluteFaceHeightThreshold) {
-				Face face = Face.create(rect, img.getWidth(), img.getHeight());
+				Face face = Face.create(rect);
 				faces.add(face);
 			}
 		}
@@ -128,8 +129,8 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 		BufferedImage img = frame.toImage();
 		List<Face> faces = new ArrayList<>();
 		for (FaceDescriptor faceDesc : jdlib.getFaceEmbeddings(img)) {
-			Face face = Face.create(faceDesc.getFaceBox(),img.getWidth(), img.getHeight());
-			face.setEmbeddings(faceDesc.getFaceEmbedding());
+			Face face = Face.create(faceDesc.getFaceBox());
+			face.setEmbedding(faceDesc.getFaceEmbedding());
 			face.setLandmarks(faceDesc.getFacialLandmarks());
 			faces.add(face);
 		}
@@ -165,7 +166,7 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 			List<FaceDescriptor> faceDescriptors = jdlib.getFaceEmbeddings(convertedImg);
 			for (FaceDescriptor faceDesc : faceDescriptors) {
 				face.setLandmarks(decropLandmarks(face, faceDesc.getFacialLandmarks(), scaleFactor));
-				face.setEmbeddings(faceDesc.getFaceEmbedding());
+				face.setEmbedding(faceDesc.getFaceEmbedding());
 			}
 		}
 		return frame;
@@ -177,7 +178,7 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 		List<Face> faces = new ArrayList<>();
 		List<FaceDescriptor> faceDescriptors = jdlib.getFaceLandmarks(img);
 		for (FaceDescriptor faceDesc : faceDescriptors) {
-			Face face = Face.create(faceDesc.getFaceBox(), img.getWidth(), img.getHeight());
+			Face face = Face.create(faceDesc.getFaceBox());
 			face.setLandmarks(faceDesc.getFacialLandmarks());
 			faces.add(face);
 		}
@@ -215,7 +216,9 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 				})
 				.toList();
 
-			faceDescriptors.add(new FaceDescriptor(face.box(), points));
+			FaceBox box = face.box();
+			Rectangle rect = new Rectangle(box.getStartX(), box.getStartY(), box.getWidth(), box.getHeight());
+			faceDescriptors.add(new FaceDescriptor(rect, points));
 		}
 		return faceDescriptors;
 	}

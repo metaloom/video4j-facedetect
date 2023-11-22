@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.opencv.core.Mat;
 
-import io.metaloom.video.facedetect.Face;
 import io.metaloom.video.facedetect.Facedetector;
+import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video.facedetect.opencv.impl.CVFacedetectorImpl;
 
 public interface CVFacedetector extends Facedetector {

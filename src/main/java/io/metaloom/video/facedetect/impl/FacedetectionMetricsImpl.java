@@ -2,9 +2,9 @@ package io.metaloom.video.facedetect.impl;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.metaloom.video.facedetect.Face;
 import io.metaloom.video.facedetect.FaceVideoFrame;
 import io.metaloom.video.facedetect.FacedetectorMetrics;
+import io.metaloom.video.facedetect.face.Face;
 
 public class FacedetectionMetricsImpl implements FacedetectorMetrics {
 
@@ -27,7 +27,7 @@ public class FacedetectionMetricsImpl implements FacedetectorMetrics {
 			boolean hasEmbeddings = false;
 			boolean hasLandmarks = false;
 			for (Face face : frame.faces()) {
-				if (face.getEmbeddings() != null) {
+				if (face.getEmbedding() != null) {
 					hasEmbeddings = true;
 				}
 				if (!face.getLandmarks().isEmpty()) {

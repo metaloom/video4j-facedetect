@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.metaloom.video.facedetect.dlib.impl.DLibFacedetector;
+import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video.facedetect.opencv.CVFacedetector;
 import io.metaloom.video4j.Video;
 import io.metaloom.video4j.Video4j;
@@ -73,7 +74,7 @@ public class BasicUsageExampleTest {
 				Point start = face.start(); // Upper left point of the face
 				Dimension dim = face.dimension(); // Dimension of the face area in pixel
 				List<Point> landmarks = face.getLandmarks(); // Load the detected landmarks
-				float[] vector = face.getEmbeddings(); // Access the embeddings vector data
+				float[] vector = face.getEmbedding(); // Access the embeddings vector data
 			}
 			// SNIPPET END dlib-extract
 		}
