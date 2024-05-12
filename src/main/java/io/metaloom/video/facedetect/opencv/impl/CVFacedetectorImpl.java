@@ -2,7 +2,6 @@ package io.metaloom.video.facedetect.opencv.impl;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;

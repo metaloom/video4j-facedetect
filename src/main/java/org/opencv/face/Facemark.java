@@ -3,7 +3,6 @@
 // This file is auto-generated. Please don't modify it!
 package org.opencv.face;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Algorithm;
 import org.opencv.core.Mat;
