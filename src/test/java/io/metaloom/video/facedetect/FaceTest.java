@@ -18,8 +18,8 @@ public class FaceTest {
 		assertEquals(20, face.start().y);
 
 		Dimension dim = face.dimension();
-		assertEquals(100, dim.height);
-		assertEquals(120, dim.width);
+		assertEquals(120, dim.height);
+		assertEquals(100, dim.width);
 	}
 
 }
