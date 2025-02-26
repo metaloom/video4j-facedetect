@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.opencv.core.Scalar;
 
 import io.metaloom.video.facedetect.dlib.impl.DLibFacedetector;
+import io.metaloom.video.facedetect.insightface.impl.InsightfaceFacedetector;
 import io.metaloom.video.facedetect.opencv.CVFacedetector;
 import io.metaloom.video4j.VideoFile;
 import io.metaloom.video4j.Videos;
@@ -43,6 +44,14 @@ public class FacedetectPreviewUITest extends AbstractVideoTest {
 		detector.enableCNNDetector();
 
 		runFaceDetect("dlib - mmod_human_face (GPU)", detector);
+	}
+
+	@Test
+	public void testInsightface() throws FileNotFoundException {
+		InsightfaceFacedetector detector = InsightfaceFacedetector.create();
+		detector.setMinFaceHeightFactor(MIN_FACE_HEIGHT_THRESHOLD);
+
+		runFaceDetect("InsightFace - (GPU)", detector);
 	}
 
 	@Test

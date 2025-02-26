@@ -2,6 +2,7 @@
 
 This project contains APIs that provide access to different [Face detection](https://en.wikipedia.org/wiki/Face_detection) implementations via the [Video4j](https://github.com/metaloom/video4j) library.
 
+It currently support face detection via dLib, OpenCV and InsightFace (via inference server).
 
 ## Maven
 
@@ -12,6 +13,12 @@ This project contains APIs that provide access to different [Face detection](htt
 	<version>0.2.0-SNAPSHOT</version>
 </dependency>
 ```
+
+## Libraries
+
+```bash
+apt-get install libdlib19.2  libdlib-data libmkl-rt
+``
 
 ## Status
 
