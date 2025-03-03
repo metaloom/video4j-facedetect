@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.metaloom.facedetection.client.FaceDetectionServerClient;
+import io.metaloom.facedetection.client.model.DetectionResponse;
+import io.metaloom.facedetection.client.model.FaceBox;
+import io.metaloom.facedetection.client.model.FaceModel;
 import io.metaloom.video.facedetect.AbstractFacedetector;
 import io.metaloom.video.facedetect.FaceVideoFrame;
 import io.metaloom.video.facedetect.face.Face;
 import io.metaloom.video4j.VideoFrame;
 import io.metaloom.video4j.utils.ImageUtils;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 
 public class InsightfaceFacedetectorImpl extends AbstractFacedetector implements InsightfaceFacedetector {
 
@@ -38,19 +39,16 @@ public class InsightfaceFacedetectorImpl extends AbstractFacedetector implements
 
 		try {
 			String encoded = ImageUtils.toBase64JPG(img);
-			JsonObject out = client.detect(null, encoded);
-			JsonArray facesArray = out.getJsonArray("faces");
-			if (facesArray != null) {
-				for (int i = 0; i < facesArray.size(); i++) {
-					JsonObject faceJson = facesArray.getJsonObject(i);
-					JsonArray bbox = faceJson.getJsonArray("bbox");
-					int x = bbox.getInteger(0);
-					int y = bbox.getInteger(1);
-					int width = bbox.getInteger(2) / 2;
-					int height = bbox.getInteger(3) / 2;
-					Face face = Face.create(new Rectangle(x, y, width, height));
-					faces.add(face);
-				}
+			DetectionResponse out = client.detect(null, encoded);
+			List<FaceModel> detectedFaces = out.getFaces();
+			for (FaceModel detectedFace : detectedFaces) {
+				FaceBox box = detectedFace.getBox();
+				int x = box.getStartX();
+				int y = box.getStartY();
+				int width = box.getWidth() / 2;
+				int height = box.getHeight() / 2;
+				Face face = Face.create(new Rectangle(x, y, width, height));
+				faces.add(face);
 			}
 		} catch (IOException | URISyntaxException | InterruptedException e) {
 			throw new RuntimeException(e);
