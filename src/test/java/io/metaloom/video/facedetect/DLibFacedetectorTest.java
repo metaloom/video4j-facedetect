@@ -31,7 +31,7 @@ public class DLibFacedetectorTest extends AbstractVideoTest{
 						return frame;
 					})
 					.map(detector::detectFaces)
-					.filter(FaceVideoFrame::hasFace)
+					.filter(FaceVideoFrame::hasFaces)
 					.map(frame -> FacedetectorUtils.cropToFace(frame, 0))
 					//.map(detector::detectLandmarks)
 					//.map(detector::detectEmbeddings)

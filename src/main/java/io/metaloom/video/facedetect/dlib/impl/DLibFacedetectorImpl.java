@@ -140,7 +140,7 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 
 	@Override
 	public FaceVideoFrame detectEmbeddings(FaceVideoFrame frame) {
-		if (!frame.hasFace()) {
+		if (!frame.hasFaces()) {
 			return frame;
 		}
 		BufferedImage img = frame.toImage();
@@ -188,7 +188,7 @@ public class DLibFacedetectorImpl extends AbstractFacedetector implements DLibFa
 
 	@Override
 	public FaceVideoFrame detectLandmarks(FaceVideoFrame frame) {
-		if (!frame.hasFace()) {
+		if (!frame.hasFaces()) {
 			return frame;
 		}
 

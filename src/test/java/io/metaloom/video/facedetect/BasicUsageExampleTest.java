@@ -44,7 +44,7 @@ public class BasicUsageExampleTest {
 					.map(detector::detectFaces)
 					.map(detector::detectLandmarks)
 					//.map(detector::detectEmbeddings)
-					.filter(FaceVideoFrame::hasFace)
+					.filter(FaceVideoFrame::hasFaces)
 					.map(metrics::track)
 					.map(detector::markFaces)
 					.map(detector::markLandmarks)
@@ -68,7 +68,7 @@ public class BasicUsageExampleTest {
 		try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
 			FaceVideoFrame faceFrame = detector.detectFaces(video.frame());
 			// Check if the frame contains a detected face
-			if (faceFrame.hasFace()) {
+			if (faceFrame.hasFaces()) {
 				List<? extends Face> faces = faceFrame.faces();// Access the faces
 				Face face = faces.get(0);
 				Point start = face.start(); // Upper left point of the face
@@ -111,7 +111,7 @@ public class BasicUsageExampleTest {
 					})
 					.map(detector::detectFaces)
 					.map(detector::detectLandmarks)
-					.filter(FaceVideoFrame::hasFace)
+					.filter(FaceVideoFrame::hasFaces)
 					.map(metrics::track)
 					.map(detector::markFaces)
 					.map(detector::markLandmarks)

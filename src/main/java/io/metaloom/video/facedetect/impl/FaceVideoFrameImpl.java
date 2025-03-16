@@ -80,13 +80,13 @@ public class FaceVideoFrameImpl implements FaceVideoFrame {
 	}
 
 	@Override
-	public boolean hasFace() {
+	public boolean hasFaces() {
 		return !faces.isEmpty();
 	}
 
 	@Override
 	public boolean hasFaceLandmarks() {
-		if (!hasFace()) {
+		if (!hasFaces()) {
 			return false;
 		}
 		for (Face face : faces()) {

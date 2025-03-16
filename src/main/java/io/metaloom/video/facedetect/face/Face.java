@@ -149,4 +149,15 @@ public interface Face {
 		return this;
 	}
 
+	/**
+	 * Remove the metadata attribute.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	default Face remove(String key) {
+		data().remove(key);
+		return this;
+	}
+
 }

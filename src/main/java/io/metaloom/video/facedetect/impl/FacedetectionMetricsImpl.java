@@ -21,7 +21,7 @@ public class FacedetectionMetricsImpl implements FacedetectorMetrics {
 		if (frame != null) {
 			TOTAL_FRAMES_TRACKED.incrementAndGet();
 		}
-		if (frame != null && frame.hasFace()) {
+		if (frame != null && frame.hasFaces()) {
 			FRAMES_WITH_FACE.incrementAndGet();
 
 			boolean hasEmbeddings = false;

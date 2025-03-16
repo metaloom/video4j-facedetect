@@ -39,7 +39,7 @@ public class InsightfaceFacedetectorImpl extends AbstractFacedetector implements
 
 		try {
 			String encoded = ImageUtils.toBase64JPG(img);
-			DetectionResponse out = client.detect(null, encoded);
+			DetectionResponse out = client.detectByImageData(encoded);
 			List<FaceModel> detectedFaces = out.getFaces();
 			for (FaceModel detectedFace : detectedFaces) {
 				FaceBox box = detectedFace.getBox();

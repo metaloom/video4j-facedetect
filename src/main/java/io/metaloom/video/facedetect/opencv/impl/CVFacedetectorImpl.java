@@ -163,7 +163,7 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 	@Override
 	public FaceVideoFrame detectLandmarks(FaceVideoFrame frame) {
 		// No need to search for landmarks if we did not find faces.
-		if (!frame.hasFace()) {
+		if (!frame.hasFaces()) {
 			return frame;
 		}
 		Mat imageMat = frame.mat();

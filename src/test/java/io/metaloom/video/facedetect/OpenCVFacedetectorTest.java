@@ -37,7 +37,7 @@ public class OpenCVFacedetectorTest {
 					})
 					.map(detector::detectFaces)
 					.map(detector::detectLandmarks)
-					.filter(FaceVideoFrame::hasFace)
+					.filter(FaceVideoFrame::hasFaces)
 					.map(metrics::track)
 					.map(detector::markFaces)
 					.map(detector::markLandmarks)

@@ -47,7 +47,7 @@ public class FaceImpl implements Face {
 	public Point start() {
 		return new Point(box.getStartX(), box.getStartY());
 	}
-
+	
 	@Override
 	public Dimension dimension() {
 		return new Dimension(box.getWidth(), box.getHeight());
