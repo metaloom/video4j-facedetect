@@ -34,7 +34,7 @@ There are still some kinks which need to be worked out. Thus the library has not
 The OpenCV classifier based face detection needs to be initialized before usage.
 
 ```java
-%{snippet|id=opencv|file=src/test/java/io/metaloom/video/facedetect/BasicUsageExampleTest.java}
+%{snippet|id=opencv|file=opencv/src/test/java/io/metaloom/video/facedetect/opencv/OpenCVExampleTest.java}
 ```
 
 Model data:
@@ -53,11 +53,11 @@ At the moment two options are available:
 * CNN face detector which can utilize GPU
 
 ```java
-%{snippet|id=dlib|file=dlib/src/test/java/io/metaloom/video/facedetect/BasicUsageExampleTest.java}
+%{snippet|id=dlib|file=dlib/src/test/java/io/metaloom/video/facedetect/dlib/DLibExampleTest.java}
 ```
 
 ```java
-%{snippet|id=dlib-extract|file=dlib/src/test/java/io/metaloom/video/facedetect/BasicUsageExampleTest.java}
+%{snippet|id=dlib-extract|file=dlib/src/test/java/io/metaloom/video/facedetect/dlib/DLibExampleTest.java}
 ```
 
 Model data:
@@ -69,40 +69,18 @@ Model data:
 
 ### Insightface (via HTTP)
 
+TBD
+
 ### Inspireface
 
 
-## Example
-
 ```java
-Video4j.init();
-DLibFacedetector detector = DLibFacedetector.create();
-detector.setMinFaceHeightFactor(0.01f);
-detector.enableCNNDetector();
-detector.enableLandmarks();
-detector.enableLandmarks();
-
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-	FacedetectorMetrics metrics = FacedetectorMetrics.create();
-	Stream<FaceVideoFrame> frameStream = video.streamFrames()
-		.filter(frame -> {
-			return frame.number() % 5 == 0;
-		})
-		.map(frame -> {
-			CVUtils.boxFrame2(frame, 384);
-			return frame;
-		})
-		.map(detector::detect)
-		.filter(FaceVideoFrame::hasFace)
-		.map(metrics::track)
-		.map(detector::markFaces)
-		.map(detector::markLandmarks)
-		.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)))
-		.map(frame -> cropToFace(frame, 0));
-	VideoUtils.showVideoFrameStream(frameStream);
-}
+%{snippet|id=inspireface|file=inspireface/src/test/java/io/metaloom/video/facedetect/inspireface/InspirefaceExampleTest.java}
 ```
 
+```java
+%{snippet|id=inspireface-extract|file=inspireface/src/test/java/io/metaloom/video/facedetect/inspireface/InspirefaceExampleTest.java}
+```
 
 
 ## Test footage sources

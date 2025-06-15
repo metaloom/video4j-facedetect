@@ -34,7 +34,42 @@ There are still some kinks which need to be worked out. Thus the library has not
 The OpenCV classifier based face detection needs to be initialized before usage.
 
 ```java
-Error during retrieving content skip as ignoreDownloadError activated.```
+
+// Initialize video4j + detector
+Video4j.init();
+CVFacedetector detector = CVFacedetector.create();
+detector.setMinFaceHeightFactor(0.01f);
+
+// Face detection classifiers
+detector.loadLbpcascadeClassifier();
+detector.loadHaarcascadeClassifier();
+
+// Landmark detection models
+detector.loadLBFLandmarkModel();
+detector.loadKazemiFacemarkModel();
+
+// Open video and load frames
+try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
+	FacedetectorMetrics metrics = FacedetectorMetrics.create();
+	Stream<FaceVideoFrame> frameStream = video.streamFrames()
+		.filter(frame -> {
+			return frame.number() % 5 == 0;
+		})
+		.map(frame -> {
+			CVUtils.boxFrame2(frame, 384);
+			return frame;
+		})
+		.map(detector::detectFaces)
+		.map(detector::detectLandmarks)
+		.filter(FaceVideoFrame::hasFaces)
+		.map(metrics::track)
+		.map(detector::markFaces)
+		.map(detector::markLandmarks)
+		.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)))
+		.map(frame -> FacedetectorUtils.cropToFace(frame, 0));
+	VideoUtils.showVideoFrameStream(frameStream);
+}
+```
 
 Model data:
 
@@ -52,10 +87,52 @@ At the moment two options are available:
 * CNN face detector which can utilize GPU
 
 ```java
-Error during retrieving content skip as ignoreDownloadError activated.```
+
+// Initialize video4j + detector
+Video4j.init();
+DLibFacedetector detector = DLibFacedetector.create();
+detector.enableCNNDetector();
+detector.setMinFaceHeightFactor(0.05f);
+
+// Open video and load frames
+try (Video video = Videos.open("media/pexels-mikhail-nilov-7626566.mp4")) {
+	FacedetectorMetrics metrics = FacedetectorMetrics.create();
+	Stream<FaceVideoFrame> frameStream = video.streamFrames()
+		.filter(frame -> {
+			return frame.number() % 5 == 0;
+		})
+		.map(frame -> {
+			CVUtils.boxFrame2(frame, 384);
+			return frame;
+		})
+		// Run the face detection using dlib
+		.map(detector::detectFaces)
+		.map(detector::detectLandmarks)
+		// .map(detector::detectEmbeddings)
+		.filter(FaceVideoFrame::hasFaces)
+		.map(metrics::track)
+		.map(detector::markFaces)
+		.map(detector::markLandmarks)
+		.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)));
+	// .map(frame -> FacedetectorUtils.cropToFace(frame, 0));
+	VideoUtils.showVideoFrameStream(frameStream);
+
+}
+```
 
 ```java
-Error during retrieving content skip as ignoreDownloadError activated.```
+try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
+	FaceVideoFrame faceFrame = detector.detectFaces(video.frame());
+	// Check if the frame contains a detected face
+	if (faceFrame.hasFaces()) {
+		List<? extends Face> faces = faceFrame.faces();// Access the faces
+		Face face = faces.get(0);
+		Point start = face.start(); // Upper left point of the face
+		Dimension dim = face.dimension(); // Dimension of the face area in pixel
+		List<Point> landmarks = face.getLandmarks(); // Load the detected landmarks
+		float[] vector = face.getEmbedding(); // Access the embeddings vector data
+	}
+```
 
 Model data:
 
@@ -66,20 +143,20 @@ Model data:
 
 ### Insightface (via HTTP)
 
+TBD
+
 ### Inspireface
 
 
-## Example
-
 ```java
-Video4j.init();
-DLibFacedetector detector = DLibFacedetector.create();
-detector.setMinFaceHeightFactor(0.01f);
-detector.enableCNNDetector();
-detector.enableLandmarks();
-detector.enableLandmarks();
 
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
+// Initialize video4j + detector
+Video4j.init();
+InspireFacedetector detector = InspireFacedetector.create();
+detector.setMinFaceHeightFactor(0.05f);
+
+// Open video and load frames
+try (Video video = Videos.open("media/pexels-mikhail-nilov-7626566.mp4")) {
 	FacedetectorMetrics metrics = FacedetectorMetrics.create();
 	Stream<FaceVideoFrame> frameStream = video.streamFrames()
 		.filter(frame -> {
@@ -89,17 +166,34 @@ try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.
 			CVUtils.boxFrame2(frame, 384);
 			return frame;
 		})
-		.map(detector::detect)
-		.filter(FaceVideoFrame::hasFace)
+		// Run the face detection using dlib
+		.map(detector::detectFaces)
+		.map(detector::detectLandmarks)
+		// .map(detector::detectEmbeddings)
+		.filter(FaceVideoFrame::hasFaces)
 		.map(metrics::track)
 		.map(detector::markFaces)
 		.map(detector::markLandmarks)
-		.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)))
-		.map(frame -> cropToFace(frame, 0));
+		.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)));
+	// .map(frame -> FacedetectorUtils.cropToFace(frame, 0));
 	VideoUtils.showVideoFrameStream(frameStream);
+
 }
 ```
 
+```java
+try (Video video = Videos.open("media/pexels-mikhail-nilov-7626566.mp4")) {
+	FaceVideoFrame faceFrame = detector.detectFaces(video.frame());
+	// Check if the frame contains a detected face
+	if (faceFrame.hasFaces()) {
+		List<? extends Face> faces = faceFrame.faces();// Access the faces
+		Face face = faces.get(0);
+		Point start = face.start(); // Upper left point of the face
+		Dimension dim = face.dimension(); // Dimension of the face area in pixel
+		List<Point> landmarks = face.getLandmarks(); // Load the detected landmarks
+		float[] vector = face.getEmbedding(); // Access the embeddings vector data
+	}
+```
 
 
 ## Test footage sources
