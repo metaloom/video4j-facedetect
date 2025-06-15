@@ -31,38 +31,62 @@ import io.metaloom.video4j.opencv.CVUtils;
 
 public class InspireFacedetectorImpl extends AbstractFacedetector implements InspireFacedetector {
 
-	private static String DEFAULT_PACK_PATH = "packs/Pikachu";
-
 	private InspirefaceSession session;
+	private SessionFeature features[];
 
 	/**
-	 * Create a new facedetector and use default paths for detection model files.
-	 * 
-	 * @throws FileNotFoundException
-	 */
-	public InspireFacedetectorImpl() throws FileNotFoundException {
-		this(DEFAULT_PACK_PATH);
-	}
-
-	/**
-	 * Create a new facedetector.
+	 * Create a new facedetector and use the path for detection model pack.
 	 * 
 	 * @param packPath
+	 *            Path to the pack file for inspireface
+	 * @param detectPixelLevel
+	 *            Pixel level to use for the detection (160, 320, 640)
+	 * @param supportEmbeddings
+	 * @param supportAttributes
 	 * @throws FileNotFoundException
 	 */
-	public InspireFacedetectorImpl(String packPath) throws FileNotFoundException {
+	public InspireFacedetectorImpl(String packPath, int detectPixelLevel, boolean supportEmbeddings, boolean supportAttributes)
+		throws FileNotFoundException {
 		if (!Files.exists(Paths.get(packPath))) {
-			throw new FileNotFoundException("model pack file could not be found at " + packPath);
+			throw new FileNotFoundException("Model pack file could not be found at " + packPath);
 		}
-		session = InspirefaceLib.session(packPath, 640, SessionFeature.ENABLE_FACE_RECOGNITION, SessionFeature.ENABLE_FACE_ATTRIBUTE,
-			SessionFeature.ENABLE_MASK_DETECT);
+
+		List<SessionFeature> featureList = new ArrayList<>();
+		if (supportEmbeddings) {
+			featureList.add(SessionFeature.ENABLE_FACE_RECOGNITION);
+		}
+		if (supportAttributes) {
+			featureList.add(SessionFeature.ENABLE_FACE_ATTRIBUTE);
+		}
+
+		this.features = featureList.toArray(new SessionFeature[0]);
+
+		session = InspirefaceLib.session(packPath, detectPixelLevel, features);
+
 	}
 
 	@Override
 	public FaceVideoFrame detectFaces(VideoFrame frame) {
 		FaceVideoFrame faceFrame = FaceVideoFrame.from(frame);
 		BufferedImage img = frame.toImage();
-		faceFrame.setFaces(detectFaces(img));
+
+		int absoluteFaceHeightThreshold = calculateHeightThreshold(img);
+
+		// Detect faces
+		List<Face> faces = new ArrayList<>();
+		FaceDetections detections = session.detect(frame.mat(), false);
+		for (Detection detection : detections) {
+			int height = detection.box().getHeight();
+
+			// Check if the found face is too small and does not meet the face height threshold.
+			if (height > absoluteFaceHeightThreshold) {
+				Face face = Face.create(toFaceBox(detection.box()));
+				faces.add(face);
+			}
+		}
+
+		faceFrame.setFaces(faces);
+
 		return faceFrame;
 	}
 
@@ -101,18 +125,19 @@ public class InspireFacedetectorImpl extends AbstractFacedetector implements Ins
 
 	@Override
 	public FaceVideoFrame detectEmbeddings(VideoFrame frame) {
-		BufferedImage img = frame.toImage();
+		// BufferedImage img = frame.toImage();
 		List<Face> faces = new ArrayList<>();
-		Mat imageMat = MatProvider.mat(img, Imgproc.COLOR_BGRA2BGR565);
-		CVUtils.bufferedImageToMat(img, imageMat);
+		// Mat imageMat = MatProvider.mat(img, Imgproc.COLOR_BGRA2BGR565);
+		// CVUtils.bufferedImageToMat(img, imageMat);
 		int faceNr = 0;
-		FaceDetections detections = session.detect(imageMat, false);
+		FaceDetections detections = session.detect(frame.mat(), false);
 		for (Detection detection : detections) {
-			float[] embedding = session.embedding(imageMat, detections, faceNr);
+			float[] embedding = session.embedding(frame.mat(), detections, faceNr);
 			Face face = Face.create(toFaceBox(null));
 			face.setEmbedding(embedding);
 			// face.setLandmarks(faceDesc.getFacialLandmarks());
 			faces.add(face);
+			faceNr++;
 		}
 		return FaceVideoFrame.from(frame).setFaces(faces);
 

@@ -53,7 +53,7 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 
 	@Override
 	public void loadKazemiFacemarkModel() {
-		loadKazemiFacemarkModel("opencv/face_landmark_model.dat");
+		loadKazemiFacemarkModel("data/face_landmark_model.dat");
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 
 	@Override
 	public void loadLBFLandmarkModel() {
-		loadLBFFacemarkModel("opencv/lbfmodel.yaml");
+		loadLBFFacemarkModel("data/lbfmodel.yaml");
 	}
 
 	public void loadLBFFacemarkModel(String path) {
@@ -74,7 +74,7 @@ public class CVFacedetectorImpl extends AbstractFacedetector implements CVFacede
 
 	@Override
 	public void loadAAMLandmarkModel() {
-		loadAAMFacemarkModel("opencv/lbfmodel.yaml");
+		loadAAMFacemarkModel("data/lbfmodel.yaml");
 	}
 
 	@Override

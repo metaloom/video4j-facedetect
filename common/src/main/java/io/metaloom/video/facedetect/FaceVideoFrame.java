@@ -49,4 +49,8 @@ public interface FaceVideoFrame extends VideoFrame {
 	 * @return Fluent API
 	 */
 	FaceVideoFrame setFaces(List<? extends Face> faces);
+
+	default FaceVideoFrame cropToFace(int faceNr) {
+		return FacedetectorUtils.cropToFace(this, faceNr);
+	}
 }

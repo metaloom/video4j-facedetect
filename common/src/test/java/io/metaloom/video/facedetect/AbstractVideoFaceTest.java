@@ -12,6 +12,7 @@ public abstract class AbstractVideoFaceTest {
 	}
 
 	public static final String FEMALE_FACE_ROTATE = "media/pexels-cottonbro-8090198.mp4";
+	public static final String FEMALE_FACE_ROTATE_640 = "media/pexels-8090198-sd_640_338_25fps.mp4";
 	public static final String MALE_FACE_ROTATE = "media/pexels-cottonbro-8090418.m4v";
 	public static final String FACE_CLOSEUP = "media/pexels-mikhail-nilov-7626566.mp4";
 	public static final String MALE_GLASSES_FRONTAL = "media/production ID_4100353.mp4";
