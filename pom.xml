@@ -5,6 +5,7 @@
     <groupId>io.metaloom.video</groupId>
     <artifactId>video4j-facedetect</artifactId>
     <version>0.2.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <parent>
         <groupId>io.metaloom</groupId>
@@ -21,52 +22,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <modules>
+        <module>common</module>
+        <module>dlib</module>
+        <module>opencv</module>
+        <module>inspireface</module>
+        <module>insightface-http</module>
+    </modules>
+
     <dependencies>
-        <!-- Logging -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <!-- Utils -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.metaloom.utils</groupId>
-            <artifactId>utils</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.15.0</version>
-        </dependency>
-
-
-        <!-- Video -->
-        <dependency>
-            <groupId>io.metaloom.video</groupId>
-            <artifactId>video4j</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>io.metaloom.jdlib</groupId>
-            <artifactId>jdlib</artifactId>
-            <version>2.1.0</version>
-        </dependency>
-
-        <!-- InsightFace-->
-        <dependency>
-            <groupId>io.metaloom.face</groupId>
-            <artifactId>face-recognition-server-client</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Test -->
@@ -83,10 +50,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>21</release>
+                    <release>23</release>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>

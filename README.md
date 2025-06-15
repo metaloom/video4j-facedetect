@@ -2,7 +2,6 @@
 
 This project contains APIs that provide access to different [Face detection](https://en.wikipedia.org/wiki/Face_detection) implementations via the [Video4j](https://github.com/metaloom/video4j) library.
 
-It currently support face detection via dLib, OpenCV and InsightFace (via inference server).
 
 ## Maven
 
@@ -13,12 +12,6 @@ It currently support face detection via dLib, OpenCV and InsightFace (via infere
 	<version>0.2.0-SNAPSHOT</version>
 </dependency>
 ```
-
-## Libraries
-
-```bash
-apt-get install libdlib19.2  libdlib-data libmkl-rt
-``
 
 ## Status
 
@@ -64,42 +57,7 @@ try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.
 The OpenCV classifier based face detection needs to be initialized before usage.
 
 ```java
-
-// Initialize video4j + detector
-Video4j.init();
-CVFacedetector detector = CVFacedetector.create();
-detector.setMinFaceHeightFactor(0.01f);
-
-// Face detection classifiers
-detector.loadLbpcascadeClassifier();
-detector.loadHaarcascadeClassifier();
-
-// Landmark detection models
-detector.loadLBFLandmarkModel();
-detector.loadKazemiFacemarkModel();
-
-// Open video and load frames
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-	FacedetectorMetrics metrics = FacedetectorMetrics.create();
-	Stream<FaceVideoFrame> frameStream = video.streamFrames()
-			.filter(frame -> {
-				return frame.number() % 5 == 0;
-			})
-			.map(frame -> {
-				CVUtils.boxFrame2(frame, 384);
-				return frame;
-			})
-			.map(detector::detectFaces)
-			.map(detector::detectLandmarks)
-			.filter(FaceVideoFrame::hasFace)
-			.map(metrics::track)
-			.map(detector::markFaces)
-			.map(detector::markLandmarks)
-			.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)))
-			.map(frame -> FacedetectorUtils.cropToFace(frame, 0));
-	VideoUtils.showVideoFrameStream(frameStream);
-}
-```
+Error during retrieving content skip as ignoreDownloadError activated.```
 
 
 # dlib
@@ -111,55 +69,13 @@ At the moment two options are available:
 * CNN face detector which can utilize GPU
 
 ```java
-
-// Initialize video4j + detector
-Video4j.init();
-DLibFacedetector detector = DLibFacedetector.create();
-detector.enableCNNDetector();
-detector.setMinFaceHeightFactor(0.05f);
-
-// Open video and load frames
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-	FacedetectorMetrics metrics = FacedetectorMetrics.create();
-	Stream<FaceVideoFrame> frameStream = video.streamFrames()
-			.filter(frame -> {
-				return frame.number() % 5 == 0;
-			})
-			.map(frame -> {
-				CVUtils.boxFrame2(frame, 384);
-				return frame;
-			})
-			// Run the face detection using dlib
-			.map(detector::detectFaces)
-			.map(detector::detectLandmarks)
-			//.map(detector::detectEmbeddings)
-			.filter(FaceVideoFrame::hasFace)
-			.map(metrics::track)
-			.map(detector::markFaces)
-			.map(detector::markLandmarks)
-			.map(frame -> detector.drawMetrics(frame, metrics, new Point(25, 45)));
-			//.map(frame -> FacedetectorUtils.cropToFace(frame, 0));
-	VideoUtils.showVideoFrameStream(frameStream);
-
-}
-```
+Error during retrieving content skip as ignoreDownloadError activated.```
 
 ## Face Extraction data
 
 
 ```java
-try (Video video = Videos.open("src/test/resources/pexels-mikhail-nilov-7626566.mp4")) {
-	FaceVideoFrame faceFrame = detector.detectFaces(video.frame());
-	// Check if the frame contains a detected face
-	if (faceFrame.hasFace()) {
-		List<? extends Face> faces = faceFrame.faces();// Access the faces
-		Face face = faces.get(0);
-		Point start = face.start(); // Upper left point of the face
-		Dimension dim = face.dimension(); // Dimension of the face area in pixel
-		List<Point> landmarks = face.getLandmarks(); // Load the detected landmarks
-		float[] vector = face.getEmbedding(); // Access the embeddings vector data
-	}
-```
+Error during retrieving content skip as ignoreDownloadError activated.```
 
 ## Model sources
 
