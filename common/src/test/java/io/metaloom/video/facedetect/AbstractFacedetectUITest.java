@@ -12,9 +12,9 @@ import io.metaloom.video4j.utils.VideoUtils;
 
 public class AbstractFacedetectUITest extends AbstractVideoFaceTest {
 
-	public static final String TEST_VIDEO = FEMALE_FACE_ROTATE_640;
+//	public static final String TEST_VIDEO = FEMALE_FACE_ROTATE_640;
 
-//	public static final String TEST_VIDEO = "/extra/vid/1.avi";
+	public static final String TEST_VIDEO = "/extra/vid/3.avi";
 
 	public static final double SEEK_TO = 0.05f;
 

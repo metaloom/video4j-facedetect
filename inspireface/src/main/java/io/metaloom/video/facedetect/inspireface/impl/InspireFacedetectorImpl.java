@@ -11,10 +11,12 @@ import java.util.List;
 
 import org.imgscalr.Scalr;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import io.metaloom.inspireface4j.BoundingBox;
 import io.metaloom.inspireface4j.Detection;
+import io.metaloom.inspireface4j.FaceAttributes;
 import io.metaloom.inspireface4j.InspirefaceLib;
 import io.metaloom.inspireface4j.InspirefaceSession;
 import io.metaloom.inspireface4j.SessionFeature;
@@ -33,6 +35,8 @@ public class InspireFacedetectorImpl extends AbstractFacedetector implements Ins
 
 	private InspirefaceSession session;
 	private SessionFeature features[];
+	private boolean supportAttributes;
+	private float miniumConf = 0f;
 
 	/**
 	 * Create a new facedetector and use the path for detection model pack.
@@ -56,13 +60,20 @@ public class InspireFacedetectorImpl extends AbstractFacedetector implements Ins
 			featureList.add(SessionFeature.ENABLE_FACE_RECOGNITION);
 		}
 		if (supportAttributes) {
+			// featureList.add(SessionFeature.ENABLE_QUALITY);
 			featureList.add(SessionFeature.ENABLE_FACE_ATTRIBUTE);
 		}
 
 		this.features = featureList.toArray(new SessionFeature[0]);
+		this.supportAttributes = supportAttributes;
 
 		session = InspirefaceLib.session(packPath, detectPixelLevel, features);
 
+	}
+
+	@Override
+	public void setMinConf(float conf) {
+		this.miniumConf = conf;
 	}
 
 	@Override
@@ -75,14 +86,38 @@ public class InspireFacedetectorImpl extends AbstractFacedetector implements Ins
 		// Detect faces
 		List<Face> faces = new ArrayList<>();
 		FaceDetections detections = session.detect(frame.mat(), false);
+		boolean hasAboveThresholdConf = detections.stream().filter(d -> d.conf() >= miniumConf).findFirst().isPresent();
+
+		// We only need to run attribute extraction when this is enabled and there are actually faces that have a high enough conf
+		if (supportAttributes && hasAboveThresholdConf) {
+			List<FaceAttributes> attributes = session.attributes(frame.mat(), detections, true);
+			int i = 0;
+			for (FaceAttributes attr : attributes) {
+				if (i < detections.size()) {
+					detections.get(i).setAttributes(attr);
+					i++;
+				}
+			}
+		}
+
 		for (Detection detection : detections) {
 			int height = detection.box().getHeight();
+			float conf = detection.conf();
+
+			if (height < absoluteFaceHeightThreshold) {
+				continue;
+			}
+			if (conf < miniumConf) {
+				continue;
+			}
 
 			// Check if the found face is too small and does not meet the face height threshold.
-			if (height > absoluteFaceHeightThreshold) {
-				Face face = Face.create(toFaceBox(detection.box()));
-				faces.add(face);
-			}
+			Face face = Face.create(toFaceBox(detection.box()));
+
+			face.set(ATTR_AGE_KEY, detection.getAttributes().age());
+			face.set(ATTR_GENDER_KEY, detection.getAttributes().gender());
+			face.set(ATTR_RACE_KEY, detection.getAttributes().race());
+			faces.add(face);
 		}
 
 		faceFrame.setFaces(faces);
